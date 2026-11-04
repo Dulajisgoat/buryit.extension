@@ -1,36 +1,111 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="UTF-8" />
-    <title>BuryIt</title>
-    <link rel="stylesheet" href="popup.css" />
-  </head>
-  <body>
-    <div class="buryit-popup">
-      <h1 class="buryit-title">BuryIt</h1>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Buryit</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="tool-card">
+    <div class="state-stage">
+      
+      <!-- STATE A: Form -->
+      <div class="state-block is-active" id="stateIntro">
+        <div class="mode-toggle-row">
+          <span class="mode-label is-active" id="modeLabelUsd">USD</span>
+          <label class="switch">
+            <input type="checkbox" id="modeToggleInput">
+            <span class="switch-slider"></span>
+          </label>
+          <span class="mode-label" id="modeLabelHours">Hours</span>
+        </div>
 
-      <div class="buryit-row">
-        <span class="buryit-label">Site</span>
-        <span id="hostname" class="buryit-value">—</span>
+        <div class="field-group">
+          <label class="field-label" for="itemNameInput">What are you analyzing?</label>
+          <input type="text" id="itemNameInput" class="field-input" maxlength="60" placeholder="e.g. Noise-cancelling headphones" autocomplete="off">
+          <p class="field-error" id="itemNameError"></p>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="priceInput" id="priceLabel">Price (USD)</label>
+          <input type="number" id="priceInput" class="field-input" min="0" step="0.01" placeholder="0.00">
+          <p class="field-error" id="priceError"></p>
+        </div>
+
+        <details class="wage-details" id="wageDetails">
+          <summary>Add your hourly wage (optional)</summary>
+          <div class="wage-input-wrap">
+            <label class="field-label" for="wageInput">Hourly wage (USD)</label>
+            <input type="number" id="wageInput" class="field-input" min="0" step="0.01" placeholder="0.00">
+          </div>
+        </details>
+
+        <button type="button" class="analyze-btn" id="analyzeBtn" disabled>
+          Analyze Purchase
+          <svg class="arrow-svg" viewBox="0 0 16 16" fill="none"><path d="M2 8H14M14 8L9 3M14 8L9 13" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
       </div>
 
-      <div class="buryit-row">
-        <span class="buryit-label">Enabled</span>
-        <label class="buryit-switch">
-          <input type="checkbox" id="enabledToggle" />
-          <span class="buryit-slider"></span>
-        </label>
+      <!-- STATE B: Quiz -->
+      <div class="state-block" id="stateQuiz">
+        <div class="quiz-header-line" id="quizHeaderLine"></div>
+        <div class="progress-row" id="progressRow">
+          <div class="progress-seg" data-seg="0"><span></span></div>
+          <div class="progress-seg" data-seg="1"><span></span></div>
+          <div class="progress-seg" data-seg="2"><span></span></div>
+          <div class="progress-seg" data-seg="3"><span></span></div>
+        </div>
+        <div class="progress-text" id="progressText">Question 1 of 4</div>
+        <h2 class="question-text" id="questionText"></h2>
+        <div class="answer-row">
+          <button type="button" class="answer-btn yes" id="yesBtn">Yes</button>
+          <button type="button" class="answer-btn no" id="noBtn">No</button>
+        </div>
       </div>
 
-      <div class="buryit-row">
-        <span class="buryit-label">Buried</span>
-        <span id="count" class="buryit-value">0 element(s) buried</span>
+      <!-- STATE C: Verdict -->
+      <div class="state-block" id="stateVerdict">
+        <div class="verdict-center">
+          <svg class="verdict-icon" id="verdictIconApproved" viewBox="0 0 56 56" fill="none" hidden>
+            <circle class="fill-ink" cx="28" cy="28" r="27"/>
+            <path d="M17 29L24 36L39 20" stroke="var(--bg)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <svg class="verdict-icon" id="verdictIconDenied" viewBox="0 0 56 56" fill="none" hidden>
+            <circle class="fill-ink" cx="28" cy="28" r="27"/>
+            <path d="M20 20L36 36M36 20L20 36" stroke="var(--bg)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+
+          <h2 class="verdict-title" id="verdictTitle">VERDICT</h2>
+          <p class="verdict-body" id="verdictBody"></p>
+
+          <dl class="verdict-breakdown">
+            <div class="breakdown-row">
+              <dt>Item</dt>
+              <dd id="breakdownItem"></dd>
+            </div>
+            <div class="breakdown-row">
+              <dt id="breakdownPriceLabel">Price</dt>
+              <dd id="breakdownPrice"></dd>
+            </div>
+            <div class="breakdown-row">
+              <dt>Score</dt>
+              <dd id="breakdownScore"></dd>
+            </div>
+            <div class="breakdown-row" id="breakdownHoursRow" hidden>
+              <dt>Life cost</dt>
+              <dd id="breakdownHours"></dd>
+            </div>
+          </dl>
+
+          <div class="verdict-actions">
+            <button type="button" class="btn-primary" id="copyResultBtn">Copy result</button>
+            <button type="button" class="btn-outline" id="resetBtn">Reset</button>
+          </div>
+        </div>
       </div>
-
-      <button id="resetButton" class="buryit-reset">Reset this site</button>
-
-      <div id="status" class="buryit-status"></div>
+      
     </div>
-    <script src="popup.js"></script>
-  </body>
+  </div>
+  <script src="popup.js"></script>
+</body>
 </html>
