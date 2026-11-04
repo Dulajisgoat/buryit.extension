@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>BuryIt</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <div class="buryit-popup">
+      <h1 class="buryit-title">BuryIt</h1>
+
+      <div class="buryit-row">
+        <span class="buryit-label">Site</span>
+        <span id="hostname" class="buryit-value">—</span>
+      </div>
+
+      <div class="buryit-row">
+        <span class="buryit-label">Enabled</span>
+        <label class="buryit-switch">
+          <input type="checkbox" id="enabledToggle" />
+          <span class="buryit-slider"></span>
+        </label>
+      </div>
+
+      <div class="buryit-row">
+        <span class="buryit-label">Buried</span>
+        <span id="count" class="buryit-value">0 element(s) buried</span>
+      </div>
+
+      <button id="resetButton" class="buryit-reset">Reset this site</button>
+
+      <div id="status" class="buryit-status"></div>
+    </div>
+    <script src="popup.js"></script>
+  </body>
+</html>
