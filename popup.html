@@ -1,111 +1,171 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Buryit</title>
-  <link rel="stylesheet" href="popup.css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Buryit</title>
+<link rel="stylesheet" href="popup.css">
 </head>
 <body>
-  <div class="tool-card">
-    <div class="state-stage">
-      
-      <!-- STATE A: Form -->
-      <div class="state-block is-active" id="stateIntro">
-        <div class="mode-toggle-row">
-          <span class="mode-label is-active" id="modeLabelUsd">USD</span>
-          <label class="switch">
-            <input type="checkbox" id="modeToggleInput">
-            <span class="switch-slider"></span>
-          </label>
-          <span class="mode-label" id="modeLabelHours">Hours</span>
-        </div>
 
-        <div class="field-group">
-          <label class="field-label" for="itemNameInput">What are you analyzing?</label>
-          <input type="text" id="itemNameInput" class="field-input" maxlength="60" placeholder="e.g. Noise-cancelling headphones" autocomplete="off">
-          <p class="field-error" id="itemNameError"></p>
-        </div>
+<div class="tool-card">
 
-        <div class="field-group">
-          <label class="field-label" for="priceInput" id="priceLabel">Price (USD)</label>
-          <input type="number" id="priceInput" class="field-input" min="0" step="0.01" placeholder="0.00">
-          <p class="field-error" id="priceError"></p>
-        </div>
+  <div class="state-stage">
 
-        <details class="wage-details" id="wageDetails">
-          <summary>Add your hourly wage (optional)</summary>
-          <div class="wage-input-wrap">
-            <label class="field-label" for="wageInput">Hourly wage (USD)</label>
-            <input type="number" id="wageInput" class="field-input" min="0" step="0.01" placeholder="0.00">
-          </div>
-        </details>
+    <!-- STATE A — Intro -->
+    <div class="state-block is-active" id="stateIntro">
+      <h2 class="visually-hidden">Analyze a purchase</h2>
 
-        <button type="button" class="analyze-btn" id="analyzeBtn" disabled>
-          Analyze Purchase
-          <svg class="arrow-svg" viewBox="0 0 16 16" fill="none"><path d="M2 8H14M14 8L9 3M14 8L9 13" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <div class="mode-toggle-row">
+        <span class="mode-label is-active" id="modeLabelUsd">USD</span>
+        <label class="switch">
+          <input type="checkbox" id="modeToggleInput" aria-label="Calculate in hours instead of USD">
+          <span class="switch-slider" aria-hidden="true"></span>
+        </label>
+        <span class="mode-label" id="modeLabelHours">Hours</span>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label" for="itemNameInput">What are you analyzing?</label>
+        <input type="text" id="itemNameInput" class="field-input" maxlength="60" placeholder="e.g. Noise-cancelling headphones" autocomplete="off">
+        <p class="field-error" id="itemNameError" aria-live="polite"></p>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label" for="priceInput" id="priceLabel">Price (USD)</label>
+        <input type="number" id="priceInput" class="field-input" min="0" step="0.01" inputmode="decimal" placeholder="0.00">
+        <p class="field-error" id="priceError" aria-live="polite"></p>
+      </div>
+
+      <div class="buryit-detect" id="buryitDetect">
+        <button type="button" class="buryit-detect-trigger" id="buryitDetectTrigger">
+          <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <circle cx="7" cy="7" r="4.5" stroke="currentColor" stroke-width="1.4"/>
+            <path d="M10.5 10.5L14 14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+          </svg>
+          Detect price from this page
         </button>
+        <p class="buryit-detect-status" id="buryitDetectStatus" role="status" aria-live="polite"></p>
       </div>
 
-      <!-- STATE B: Quiz -->
-      <div class="state-block" id="stateQuiz">
-        <div class="quiz-header-line" id="quizHeaderLine"></div>
-        <div class="progress-row" id="progressRow">
-          <div class="progress-seg" data-seg="0"><span></span></div>
-          <div class="progress-seg" data-seg="1"><span></span></div>
-          <div class="progress-seg" data-seg="2"><span></span></div>
-          <div class="progress-seg" data-seg="3"><span></span></div>
-        </div>
-        <div class="progress-text" id="progressText">Question 1 of 4</div>
-        <h2 class="question-text" id="questionText"></h2>
-        <div class="answer-row">
-          <button type="button" class="answer-btn yes" id="yesBtn">Yes</button>
-          <button type="button" class="answer-btn no" id="noBtn">No</button>
+      <div class="buryit-consent" id="buryitConsent" hidden>
+        <p class="buryit-consent-text">
+          Buryit will read the price from this page. It won't read anything else.
+        </p>
+        <div class="buryit-consent-actions">
+          <button type="button" class="buryit-consent-allow" id="buryitConsentAllow">Allow</button>
+          <button type="button" class="buryit-consent-cancel" id="buryitConsentCancel">Not now</button>
         </div>
       </div>
 
-      <!-- STATE C: Verdict -->
-      <div class="state-block" id="stateVerdict">
-        <div class="verdict-center">
-          <svg class="verdict-icon" id="verdictIconApproved" viewBox="0 0 56 56" fill="none" hidden>
-            <circle class="fill-ink" cx="28" cy="28" r="27"/>
-            <path d="M17 29L24 36L39 20" stroke="var(--bg)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-          <svg class="verdict-icon" id="verdictIconDenied" viewBox="0 0 56 56" fill="none" hidden>
-            <circle class="fill-ink" cx="28" cy="28" r="27"/>
-            <path d="M20 20L36 36M36 20L20 36" stroke="var(--bg)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-
-          <h2 class="verdict-title" id="verdictTitle">VERDICT</h2>
-          <p class="verdict-body" id="verdictBody"></p>
-
-          <dl class="verdict-breakdown">
-            <div class="breakdown-row">
-              <dt>Item</dt>
-              <dd id="breakdownItem"></dd>
-            </div>
-            <div class="breakdown-row">
-              <dt id="breakdownPriceLabel">Price</dt>
-              <dd id="breakdownPrice"></dd>
-            </div>
-            <div class="breakdown-row">
-              <dt>Score</dt>
-              <dd id="breakdownScore"></dd>
-            </div>
-            <div class="breakdown-row" id="breakdownHoursRow" hidden>
-              <dt>Life cost</dt>
-              <dd id="breakdownHours"></dd>
-            </div>
-          </dl>
-
-          <div class="verdict-actions">
-            <button type="button" class="btn-primary" id="copyResultBtn">Copy result</button>
-            <button type="button" class="btn-outline" id="resetBtn">Reset</button>
-          </div>
+      <details class="wage-details" id="wageDetails">
+        <summary>Add your hourly wage (optional)</summary>
+        <div class="wage-input-wrap">
+          <label class="field-label" for="wageInput">Hourly wage (USD)</label>
+          <input type="number" id="wageInput" class="field-input" min="0" step="0.01" inputmode="decimal" placeholder="0.00">
         </div>
-      </div>
-      
+      </details>
+
+      <button type="button" class="analyze-btn" id="analyzeBtn" disabled>
+        Analyze Purchase
+        <svg class="arrow-svg" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <path d="M2 8H14M14 8L9 3M14 8L9 13" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
     </div>
+
+    <!-- STATE B — Quiz -->
+    <div class="state-block" id="stateQuiz">
+      <div class="quiz-header-line" id="quizHeaderLine"></div>
+
+      <div class="progress-row" id="progressRow">
+        <div class="progress-seg" data-seg="0"><span></span></div>
+        <div class="progress-seg" data-seg="1"><span></span></div>
+        <div class="progress-seg" data-seg="2"><span></span></div>
+        <div class="progress-seg" data-seg="3"><span></span></div>
+      </div>
+      <div class="progress-text" id="progressText">Question 1 of 4</div>
+
+      <div aria-live="polite">
+        <h2 class="question-text" id="questionText"></h2>
+      </div>
+
+      <div class="answer-row">
+        <button type="button" class="answer-btn yes" id="yesBtn">Yes</button>
+        <button type="button" class="answer-btn no" id="noBtn">No</button>
+      </div>
+    </div>
+
+    <!-- STATE C — Verdict -->
+    <div class="state-block" id="stateVerdict">
+      <div class="verdict-center">
+        <svg class="verdict-icon" id="verdictIconApproved" viewBox="0 0 56 56" fill="none" aria-hidden="true" hidden>
+          <circle class="fill-ink" cx="28" cy="28" r="27"/>
+          <path d="M17 29L24 36L39 20" stroke="var(--white)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <svg class="verdict-icon" id="verdictIconDenied" viewBox="0 0 56 56" fill="none" aria-hidden="true" hidden>
+          <circle class="fill-ink" cx="28" cy="28" r="27"/>
+          <path d="M20 20L36 36M36 20L20 36" stroke="var(--white)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+
+        <h2 class="verdict-title" id="verdictTitle">VERDICT</h2>
+        <p class="verdict-body" id="verdictBody"></p>
+
+        <dl class="verdict-breakdown">
+          <div class="breakdown-row">
+            <dt>Item</dt>
+            <dd id="breakdownItem"></dd>
+          </div>
+          <div class="breakdown-row">
+            <dt id="breakdownPriceLabel">Price</dt>
+            <dd id="breakdownPrice"></dd>
+          </div>
+          <div class="breakdown-row">
+            <dt>Score</dt>
+            <dd id="breakdownScore"></dd>
+          </div>
+          <div class="breakdown-row" id="breakdownHoursRow" hidden>
+            <dt>Life cost</dt>
+            <dd id="breakdownHours"></dd>
+          </div>
+        </dl>
+
+        <div class="verdict-actions">
+          <button type="button" class="btn btn-primary" id="copyResultBtn">Copy result</button>
+          <button type="button" class="btn btn-outline" id="resetBtn">Reset Analyzer</button>
+        </div>
+      </div>
+    </div>
+
   </div>
-  <script src="popup.js"></script>
+</div>
+
+<div class="stat-strip" id="statStrip">
+  <span id="statStripText"></span>
+  <div class="stat-actions">
+    <button type="button" class="stat-link" id="viewHistoryBtn">View History</button>
+    <button type="button" class="stat-link" id="statClearBtn">Clear</button>
+  </div>
+</div>
+
+<!-- History modal -->
+<div class="modal-overlay" id="historyOverlay" hidden>
+  <div class="modal-box" id="historyModal" role="dialog" aria-modal="true" aria-labelledby="historyModalTitle">
+    <div class="modal-header">
+      <h2 id="historyModalTitle">Recent checks</h2>
+      <button type="button" class="modal-close" id="historyCloseBtn" aria-label="Close history">
+        <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <path d="M3 3L13 13M13 3L3 13" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+    <div class="modal-body" id="historyModalBody"></div>
+  </div>
+</div>
+
+<!-- Toasts -->
+<div class="toast-container" id="toastContainer" role="status" aria-live="polite"></div>
+
+<script src="popup.js"></script>
 </body>
 </html>
