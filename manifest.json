@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Buryit",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "Kill impulse buying before it kills your wallet. Four questions. One honest verdict.",
 
   "action": {
@@ -21,7 +21,7 @@
     "128": "icon128.png"
   },
 
-  "permissions": ["storage"],
+  "permissions": ["storage", "activeTab", "scripting"],
 
   "background": {
     "service_worker": "background.js"
